@@ -1,41 +1,42 @@
 import './MessageBubble.css'
 
-export default function MessageBubble({ role, content }) {
-  const isUser = role === 'user'
+export default function MessageBubble({ role, content, message }) {
+  // Support both possible data formats:
+  // 1. { role, content }
+  // 2. { message: { role, content } }
 
-  return (
-    <div className={`message-bubble ${role}`}>
-      {!isUser && <div className="message-avatar">AI</div>}
-      <div className="message-content">
-        {!isUser && <div className="message-label">Assistant</div>}
-        <p className="message-text">{content}</p>
-      </div>
-    </div>
-  )
-}
-import './MessageBubble.css'
+  const actualRole = message?.role ?? role
+  const actualContent = message?.content ?? content ?? ''
 
-export default function MessageBubble({ message }) {
-  const isUser = message.role === 'user'
+  const isUser = actualRole === 'user'
 
-  // Simple markdown-like rendering for common patterns
+  // Simple markdown-like rendering
   const formatContent = (text) => {
     return text.split('\n').map((line, i) => {
-      if (line.trim() === '') return null
-      if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+      const trimmedLine = line.trim()
+
+      if (trimmedLine === '') {
+        return <div key={i} className="message-spacer" />
+      }
+
+      // Bullet points
+      if (trimmedLine.startsWith('•') || trimmedLine.startsWith('-')) {
         return (
           <li key={i} className="message-list-item">
-            {line.replace(/^[•\-]\s*/, '')}
+            {trimmedLine.replace(/^[•\-]\s*/, '')}
           </li>
         )
       }
-      if (line.match(/^\d+\./)) {
+
+      // Numbered points
+      if (/^\d+\./.test(trimmedLine)) {
         return (
           <li key={i} className="message-list-item">
-            {line.replace(/^\d+\.\s*/, '')}
+            {trimmedLine.replace(/^\d+\.\s*/, '')}
           </li>
         )
       }
+
       return (
         <p key={i} className="message-paragraph">
           {line}
@@ -44,13 +45,26 @@ export default function MessageBubble({ message }) {
     })
   }
 
-  const hasLists = message.content.includes('•') || message.content.includes('-')
+  const hasLists =
+    actualContent.includes('•') ||
+    actualContent.includes('-')
 
   return (
     <div className={`message-bubble message-${isUser ? 'user' : 'assistant'}`}>
-      {!isUser && <div className="message-label">AI Assistant</div>}
-      <div className={hasLists && !isUser ? 'message-content-with-lists' : 'message-content'}>
-        {formatContent(message.content)}
+      {!isUser && (
+        <div className="message-label">
+          AI Assistant
+        </div>
+      )}
+
+      <div
+        className={
+          hasLists && !isUser
+            ? 'message-content-with-lists'
+            : 'message-content'
+        }
+      >
+        {formatContent(actualContent)}
       </div>
     </div>
   )
