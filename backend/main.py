@@ -24,7 +24,17 @@ app = FastAPI()
 # Enable CORS for frontend development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000", "http://10.72.209.193:3000", "http://10.72.209.193:8000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+        "http://10.72.209.193:3000",
+        "http://10.72.209.193:8000",
+
+        # Production frontend
+        "https://lucifer-ai-resume-chatbot-ka1gq8hxx-lucifer-1d95.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
